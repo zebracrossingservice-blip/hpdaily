@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZC 總部主管邦邦績效管理系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%); 
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
+        .card { 
+            background: rgba(255, 255, 255, 0.96); 
+            border-radius: 24px; 
+            box-shadow: 0 10px 30px -5px rgba(30, 41, 59, 0.08), 0 8px 15px -6px rgba(30, 41, 59, 0.06);
+            backdrop-filter: blur(8px);
+        }
+        label { font-weight: 600; color: #374151; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 4px; font-size: 13px; }
+        input, select, textarea { 
+            width: 100%; padding: 0.75rem; border: 1.5px solid #93c5fd; border-radius: 12px; margin-bottom: 0.8rem; font-size: 15px;
+            transition: all 0.2s;
+            background-color: white;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); }
+        .section-title { 
+            display: flex; align-items: center; gap: 8px;
+            margin: 2rem 0 1rem 0; font-size: 1.2rem; font-weight: 800; color: #1e3a8a; 
+            border-left: 5px solid #2563eb; padding-left: 8px;
+        }
+        .task-row {
+            background: #ffffff;
+            padding: 1rem; border-radius: 14px; margin-bottom: 0.8rem;
+            border: 1px solid #e2e8f0; transition: all 0.2s;
+        }
+        .task-row:hover { border-color: #3b82f6; background-color: #f8fafc; }
+        .gantt-day { text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; padding: 4px 2px; }
+        .gantt-active { background-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8); background-color: #2563eb; color: white; }
+        .gantt-empty { background-color: #f1f5f9; color: #94a3b8; }
+        #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50; align-items: center; justify-content: center; color: white; flex-direction: column; backdrop-filter: blur(4px); }
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);
+            transition: all 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -3px rgba(13, 148, 136, 0.3); }
+        .progress-bar-fill { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div id="loadingOverlay">
+        <div class="animate-spin rounded-full h-16 w-16 border-4 border-teal-500 border-t-transparent mb-4"></div>
+        <p class="font-bold text-xl text-white">正在同步並生成工作報告... 🚀</p>
+    </div>
+
+    <div class="max-w-5xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">《ZC總部》核心採購與倉儲管理系統</h1>
+            <p class="text-teal-700 font-semibold mt-2">負責主管：邦邦 (採購兼倉儲中心中心) 🎀</p>
+        </header>
+
+        <div class="card p-6 mb-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-xl">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-teal-400">📅 邦邦每週核心業務時程甘特圖 (Gantt Schedule)</h2>
+                    <p class="text-xs text-slate-400 mt-1">藍色高亮區代表該項業務之法定核心開單/核對/工作交期</p>
+                </div>
+                <div class="mt-3 md:mt-0 bg-slate-700/60 px-4 py-2 rounded-xl text-right">
+                    <span class="text-xs block text-slate-400">當週自評整體進度</span>
+                    <span class="text-2xl font-black text-teal-300" id="globalProgressPercent">0%</span>
+                </div>
+            </div>
+            
+            <div class="w-full bg-slate-700 rounded-full h-3 mb-6 overflow-hidden">
+                <div id="globalProgressBar" class="bg-gradient-to-right from-teal-400 to-blue-500 h-3 progress-bar-fill" style="width: 0%"></div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[600px] text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-700 text-slate-400">
+                            <th class="py-2 pl-2">核心模組項目</th><th>一 (Mon)</th><th>二 (Tue)</th><th>三 (Wed)</th><th>四 (Thu)</th><th>五 (Fri)</th><th>六 (Sat)</th><th>日 (Sun)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50">
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(一) 新品訂購ZC大貨</td><td class="gantt-active">大貨開單</td><td class="gantt-active">大貨開單</td><td class="gantt-active">大貨開單</td><td class="gantt-active">大貨開單</td><td class="gantt-active">大貨開單</td><td class="gantt-active">大貨開單</td><td class="gantt-active">大貨開單</td></tr>
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(二) 直播新品前置與建檔</td><td class="gantt-active">編碼對款</td><td class="gantt-active">後台建檔</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td></tr>
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(三) 官網核心追加送單</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-active">追加送單</td><td class="gantt-active">追加送單</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td></tr>
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(四) 負數商品大整理</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-active">負數整理</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td></tr>
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(五) 新品下架去留(破百單)</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-active">去留討論</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td></tr>
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(六) 蝦皮/收音機代碼更新</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-active">代碼更新</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td></tr>
+                        <tr><td class="py-2.5 font-bold pl-2 text-slate-300">模組(八) 門市追加建立採購</td><td class="gantt-empty">休</td><td class="gantt-active">門市追加</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td><td class="gantt-empty">休</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <form id="storeForm" class="card p-6 md:p-10 mb-8">
+            <div class="section-title"><span>📍</span> 基本填報資訊</div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div><label>填報主管</label><input type="text" name="reporter" value="邦邦" readonly class="bg-gray-100"></div>
+                <div><label>填報日期</label><input type="date" name="date" id="date" required></div>
+                <div>
+                    <label>今日星期</label>
+                    <select name="weekday" id="weekday">
+                        <option value="一">星期一</option><option value="二">星期二</option><option value="三">星期三</option>
+                        <option value="四">星期四</option><option value="五">星期五</option><option value="六">星期六</option>
+                        <option value="日">星期日</option>
+                    </select>
+                </div>
+                <div><label>成本中心責任歸屬</label><input type="text" value="📦 總部採購與倉儲部" readonly class="bg-gray-100 font-bold text-blue-800"></div>
+            </div>
+
+            <div class="section-title"><span>👑</span> 上午 10:00 前核心團隊管控職責</div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-3">
+                <label class="font-bold text-gray-700">1. 整體團隊當日上班分工調配計畫：</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                    <label class="font-normal"><input type="checkbox" id="m_team_1" checked onchange="updateProgress()"> 出貨人員分工</label>
+                    <label class="font-normal"><input type="checkbox" id="m_team_2" checked onchange="updateProgress()"> 點貨人員調配</label>
+                    <label class="font-normal"><input type="checkbox" id="m_team_3" checked onchange="updateProgress()"> 門市配貨計畫</label>
+                    <label class="font-normal"><input type="checkbox" id="m_team_4" checked onchange="updateProgress()"> 蝦皮兼倉儲調配</label>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label>2. 覆核並確認各同仁昨日日報表</label>
+                        <select name="yesterday_review" required>
+                            <option value="已確認並回覆昨日全員日報">✅ 已確認並全數回覆成員昨日日報</option>
+                            <option value="部分未覆核">⚠️ 部分同仁日報表尚未確認</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>3. 倉儲部門每日小會議紀錄與SOP修訂</label>
+                        <input type="text" name="warehouse_meeting" placeholder="今日發現的問題及修訂的SOP細節">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title"><span>⚙️</span> 核心業務落實自檢與數據填報 (請依今日實際工作進度打勾)</div>
+            <p class="text-xs text-red-500 font-bold mb-3">⚠️ 請邦邦務必據實勾選今日完成項目，系統將依據勾選率與後台數據連動，自動算出今日進度百分比。</p>
+
+            <div class="space-y-2">
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_1" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">🗂️ (一) 新品訂購 ZC 版 ＆ 第一批大貨開單 (天天執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">流程：開立紙本單（版空、貨海分開）➔ 存圖後製上傳 LINE 相簿 ➔ 雲端款式總總表更新</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_1" value="CN 32款/555件、自訂包包1款/11個、TW自訂2款250件" placeholder="填寫今日開單款/件數明細"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_2" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">🎬 (二) 每週直播新品前置建檔流程 (主要週一至週二執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">時效效率監控：對款找圖 ➔ 存相簿 ➔ 無價版放雲端 ➔ 編碼（定價/成本/廠商） ➔ 庫存大師建檔 ➔ 直播後台建立</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3">
+                        <input type="text" name="data_job_2_num" value="本週預計上新 52 款，今日已完成 52 款編碼與歸檔" placeholder="填寫本週預計與今日完成款式數">
+                        <input type="text" name="data_job_2_pricing" value="已核對完 52 款品名/價格/直播價，毛利異常：無" placeholder="填寫定價核對與毛利異常結果" class="mt-1">
+                    </div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_3" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">🛒 (三) 官網追加、商品等級追加單送單 (主要週二、週四執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">職責：建立採購單 ➔ 確認數量與是否做貨 ➔ 蝦皮同步加數量 ➔ 分別送單至 CN/KR/TW ➔ KEY 追加表格</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3">
+                        <input type="text" name="data_job_3_orders" value="今日共開立 30 張採購單，總計追加 CN 66款988件/KR 16款685件" placeholder="填寫開立採購單張數、款/件明細">
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <div><small class="text-gray-500 text-xs font-bold block">今日總採金額(元)</small><input type="number" name="data_job_3_amount" value="335013" class="p-2 text-sm"></div>
+                            <div><small class="text-gray-500 text-xs font-bold block">其中CN採購額</small><input type="number" name="data_job_3_cn_amount" value="238502" class="p-2 text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_4" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">🔍 (四) 檢視系統負數商品大整理 (每週四重大執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">要求：抓出系統負數庫存 ➔ 分析原因 ➔ 追加或後續通知斷貨、換色處理（一週一次大整理）</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3">
+                        <input type="text" name="data_job_4_count" placeholder="今日抓出負數庫存共 0 項">
+                        <input type="text" name="data_job_4_result" placeholder="處理結果：錯色/斷貨通知更換" class="mt-1">
+                    </div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_5" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">📉 (五) 新品銷量破百篩查與款式去留討論 (每週四早晨執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">流程：下架上週新品 ➔ 查看收音機銷量 ➔ 做破百商品單 ➔ 主管團隊討論去留（留下轉C碼/淘汰轉D碼售完不補）</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_5" placeholder="例：評估後留下轉C碼35款，售完不補D碼0款"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_6" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">📱 (六) 蝦皮款式更新 ＆ 收音機檔期代碼配置檢查 (每週四執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">標準：檢視並淘汰C碼維持在70-100款（匯出給妤嫻）➔ 檢查D碼庫存上下架 ➔ F碼保留當週新款</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_6" placeholder="例：F碼15款，C碼75款，H碼28款，I碼38款"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_7" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">💵 (七) 貨款款項安排與水單回傳歸檔 (日常/週五統一安排)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">要求：記錄款項 ➔ 分辨緊急度（不急統一週五安排） ➔ 匯出後水單確實回傳歸檔</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_7" value="今日共安排2筆貨款，總金額669，水單已全數回傳歸檔" placeholder="填寫今日貨款安排筆數、總額與歸檔狀態"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_8" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">🏪 (八) 門市追加建立採購單作業 (每週二核心對接)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">要求：建立數值為0的採購單 ➔ 備註欄註記總數+各分店分配數量 ➔ 送單 ➔ KEY 總表紀錄</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_8" placeholder="例：今日為門市開立1張採購單，共14款/526件"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_9" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">🪡 (九) CN / TW 核心自訂款打版聯繫與紀錄 (不定時)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">要求：與廠商溝通紀錄 ➔ 樣品到店進行內部對版確認 ➔ 安排下貨/下大貨 ➔ 存圖 ➔ 大貨總表更新</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_9" value="自訂款內部對版確認完成，下單CN大貨3款/310件" placeholder="填寫今日自訂款打版溝通或下大貨進度"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_10" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">📦 (十) 物流貨況與長週期未出貨追蹤 (不定時防漏大計)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">防漏天條：1. 固定清查14天內未出貨訂單。 2. 遇貨物數量不符，需回溯反查（廠商出貨日➔品檢出貨➔慶泰拆櫃單）。</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_10" value="已清查14天內未出貨單。處理1260415107等4款廠商斷貨" placeholder="填寫今日未出貨清查或異常貨物追蹤細節"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_11" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-pink-600">
+                        <div>
+                            <span class="font-bold text-gray-800 text-sm">👚 (十一) 少量現貨檢查與分店庫存二次分配 (不定時)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">目的：檢查前幾週商品庫存是否因「取消單」釋出轉為現貨 ➔ 查詢後精準將現貨重新配發至各門市架上</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_11" placeholder="例：清查前三週取消單，釋出5款現貨已全數重新分配門市"></div>
+                </div>
+            </div>
+
+            <div class="section-title"><span>助理</span> 採購助理：巧咪今日核心任務追蹤監控</div>
+            <div class="bg-teal-50/50 p-5 rounded-2xl border border-teal-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label>巧咪今日門市追加/開單送單紀錄</label>
+                        <input type="text" name="xiaomi_po_log" value="今日為門市開立 1 張採購單，共 14 款 / 526 件">
+                    </div>
+                    <div>
+                        <label>巧咪今日大陸追加送單數據 (款/件)</label>
+                        <input type="text" name="xiaomi_cn_add" value="門市大陸追加送單 16款/373件">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <div>
+                        <label>巧咪 LINE 當日總訊息處理量</label>
+                        <input type="number" name="xiaomi_line_count" value="485" placeholder="則">
+                    </div>
+                    <div>
+                        <label>超過21/28日缺貨追蹤處理明細</label>
+                        <input type="text" name="overdue_28_log" value="目前>21日缺貨共 52 款/435件。今日決定取消斷貨4款9件">
+                    </div>
+                    <div>
+                        <label>巧咪/韓國/台組 未賣已下單未到貨統計</label>
+                        <input type="text" name="undelivered_log" value="CN上身約152款/2492件，韓國上身13款，台組上身7款">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title"><span>⚠️</span> 效率與流速監控：追加安全比率智慧運算 (週四看報表防弊防卡死)</div>
+            <div class="bg-red-50/50 p-5 rounded-2xl border border-red-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label>上週官網與蝦皮銷售總件數</label>
+                    <input type="number" id="calc_sales_num" oninput="runRatioCalc()" value="150">
+                </div>
+                <div>
+                    <label>本週追加總件數</label>
+                    <input type="number" id="calc_po_num" oninput="runRatioCalc()" value="129">
+                </div>
+                <div>
+                    <label>追加流速安全比率狀態</label>
+                    <div id="poRatioDisplay" class="alert-box bg-gray-100 text-gray-700 text-xs py-3">輸入上方兩項數據自動診斷</div>
+                    <input type="hidden" name="po_safety_ratio_value" id="po_safety_ratio_value">
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-5 mt-8">
+                <button type="submit" id="submitBtn" class="btn-primary flex-1 text-white font-bold py-5 rounded-2xl shadow-xl">完成並送出總部日報 🚀</button>
+                <button type="button" onclick="generateHqPreview()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-5 rounded-2xl hover:bg-gray-200 transition">僅預覽 LINE 文字報告 📄</button>
+            </div>
+        </form>
+
+        <div id="resultContainer" class="card p-6 md:p-8 hidden">
+            <h2 class="text-2xl font-bold mb-5 flex justify-between items-center text-blue-800">
+                <span>📋 總部採購日報摘要預覽 (發送至核心群組)</span>
+                <button onclick="copyHqReport()" class="text-sm bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700">一鍵複製整份日報</button>
+            </h2>
+            <pre id="resultText" class="whitespace-pre-wrap bg-blue-50/40 p-6 rounded-2xl border border-blue-100 text-gray-700 text-sm leading-relaxed font-mono"></pre>
+        </div>
+    </div>
+
+    <script>
+        // 初始化日期
+        document.getElementById('date').valueAsDate = new Date();
+        const dayMap = ['日','一','二','三','四','五','六'];
+        document.getElementById('weekday').value = dayMap[new Date().getDay()];
+
+        // 智能進度條計算：包含管理分工打勾與核心11項工作打勾
+        function updateProgress() {
+            const totalTasks = 15; // 4個管理分工 + 11個核心工作
+            let checkedCount = 0;
+
+            if(document.getElementById('m_team_1').checked) checkedCount++;
+            if(document.getElementById('m_team_2').checked) checkedCount++;
+            if(document.getElementById('m_team_3').checked) checkedCount++;
+            if(document.getElementById('m_team_4').checked) checkedCount++;
+
+            for(let i = 1; i <= 11; i++) {
+                if(document.getElementById(`chk_job_${i}`).checked) checkedCount++;
+            }
+
+            const percent = Math.round((checkedCount / totalTasks) * 100);
+            document.getElementById('globalProgressPercent').innerText = percent + "%";
+            document.getElementById('globalProgressBar').style.width = percent + "%";
+        }
+
+        // 追加安全比率公式自動計算 (銷售件數 / 追加件數)
+        function runRatioCalc() {
+            const sales = parseFloat(document.getElementById('calc_sales_num').value) || 0;
+            const po = parseFloat(document.getElementById('calc_po_num').value) || 0;
+            const display = document.getElementById('poRatioDisplay');
+            const hiddenInput = document.getElementById('po_safety_ratio_value');
+
+            if (po === 0) {
+                display.innerText = "尚未取得有效追加數據";
+                display.className = "alert-box bg-gray-100 text-gray-700 text-xs py-3";
+                hiddenInput.value = "";
+                return;
+            }
+
+            const ratio = (sales / po).toFixed(2);
+            let statusText = "";
+            let colorClass = "";
+
+            if (ratio <= 1.1) {
+                statusText = `🟢 流速比率: ${ratio} [正常]`;
+                colorClass = "alert-box bg-green-100 text-green-700 text-xs py-3 font-bold text-center";
+            } else if (ratio > 1.1 && ratio <= 1.3) {
+                statusText = `🟡 流速比率: ${ratio} [警戒！追加與銷量逼近]`;
+                colorClass = "alert-box bg-yellow-100 text-yellow-700 text-xs py-3 font-bold text-center";
+            } else {
+                statusText = `🔴 流速比率: ${ratio} [危險！追加流速嚴重過慢]`;
+                colorClass = "alert-box bg-red-100 text-red-700 text-xs py-3 font-bold text-center";
+            }
+
+            display.innerText = statusText;
+            display.className = colorClass;
+            hiddenInput.value = ratio;
+        }
+
+        // 表單提交
+        const form = document.getElementById('storeForm');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            // 這裡可以對接你的後端 API URL
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                generateHqPreview();
+            }, 1000);
+        });
+
+        // 生成結構化 LINE 報表文字
+        function generateHqPreview() {
+            const data = new FormData(form);
+            
+            // 抓取打勾狀態文字化
+            let activeTasksText = "";
+            const weekDayNames = ['一', '二', '三', '四', '五', '六', '日'];
+            
+            const taskTitles = [
+                "(一) 新品訂購 ZC 版與大貨開單流程",
+                "(二) 每週直播新品前置編碼定價與建檔流程",
+                "(三) 官網/蝦皮欠貨追加與追加單開立",
+                "(四) 系統負數商品大整理與斷換色處理",
+                "(五) 新品下架銷量去留分析討論(破百單)",
+                "(六) 蝦皮/收音機檔期代碼配置檢查更新",
+                "(七) 貨款款項調配安排與水單回傳歸檔",
+                "(八) 門市追加數據建立與採購分配單送單",
+                "(九) CN/TW自訂款打版溝通與大貨總表更新",
+                "(十) 14天內未出貨貨況查詢與異常物流追蹤",
+                "(十一) 少量現貨庫存檢查與門市二次配貨發派"
+            ];
+
+            for(let i = 1; i <= 11; i++) {
+                const isChecked = document.getElementById(`chk_job_${i}`).checked;
+                const detailData = data.get(`data_job_${i}`) || data.get(`data_job_${i}_num`) || data.get(`data_job_${i}_orders`) || data.get(`data_job_${i}_count`) || '無特殊動態';
+                activeTasksText += `   ▪️ ${taskTitles[i-1]} ➔ [${isChecked ? '✔️今日已落實' : '💤今日無排程'}] \n`;
+                if(isChecked) {
+                    activeTasksText += `     └ 📊 今日執行明細：${detailData}\n`;
+                    if(i===2) activeTasksText += `     └ 📊 定價核對狀況：${data.get('data_job_2_pricing')}\n`;
+                    if(i===3) activeTasksText += `     └ 💰 今日採購追加金額：$${data.get('data_job_3_amount')} 元 (CN金額: $${data.get('data_job_3_cn_amount')}元)\n`;
+                    if(i===4 && data.get('data_job_4_result')) activeTasksText += `     └ 📊 負數處理明細：${data.get('data_job_4_result')}\n`;
+                }
+            }
+
+            const poRatio = document.getElementById('poRatioDisplay').innerText;
+
+            let report = `📦 【Zbcsmade 總部採購暨倉儲主管日報】 📦\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `📅 日期：${data.get('date')} (星期${data.get('weekday')})\n`;
+            report += `👤 核心負責主管：邦邦  |  👑 成本中心：總部倉儲採購部\n`;
+            report += `📈 當日業務自評落實執行率：${document.getElementById('globalProgressPercent').innerText}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 👑 上午10點前團隊管控與SOP提升 》\n`;
+            report += `・昨日成員日報覆核：${data.get('yesterday_review')}\n`;
+            report += `・每日晨會與SOP修訂：${data.get('warehouse_meeting') || '今日無重大變動'}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 🚀 邦邦 11 項核心業務今日執行進度 》\n`;
+            report += activeTasksText;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 ⚠️ 週四核心：追加流速與安全比率監控 》\n`;
+            report += `・追加安全流速比率診斷 ➔ ${poRatio}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 👩‍💻 採購助理：巧咪每日任務與對接監控 》\n`;
+            report += `・門市追加開單：${data.get('xiaomi_po_log') || '無'}\n`;
+            report += `・門市追加送單：${data.get('xiaomi_cn_add') || '無'}\n`;
+            report += `・LINE 訊息量：${data.get('xiaomi_line_count') || 0} 則\n`;
+            report += `・長週期(>21日)缺貨對接：${data.get('overdue_28_log') || '無'}\n`;
+            report += `・未賣已下單未到貨統計：${data.get('undelivered_log') || '無'}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 🔧 供應鏈日常與廠商訊息對接 》\n`;
+            report += `・貨款安排/水單回傳：${data.get('payment_status') || '無'}\n`;
+            report += `・自訂款打版總表進度：${data.get('custom_sample_progress') || '已更新'}\n`;
+            report += `・每日廠商問題/品檢明細：\n   ➔ ${data.get('vendor_issues') || '無特殊異常'}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `💡 [成本中心提示] 週末請邦邦對照本週每日日報明細，自行在週報表中進行數據加總分析，以精確落實商品與獲利管控。`;
+
+            document.getElementById('resultText').innerText = report;
+            document.getElementById('resultContainer').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function copyHqReport() {
+            const txt = document.getElementById('resultText');
+            const el = document.createElement('textarea');
+            el.value = txt.innerText; document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+            alert('邦邦總部採購日報報告已複製成功！可直接發送至管理群組覆核。');
+        }
+
+        // 初始化進度條
+        updateProgress();
+        runRatioCalc();
+    </script>
+</body>
+</html>
