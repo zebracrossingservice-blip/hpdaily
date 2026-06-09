@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZC 總部採購與倉儲日報系統 V3</title>
+    <title>ZC 總部採購與倉儲日報系統 V4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -57,7 +57,7 @@
 
     <div class="max-w-5xl mx-auto">
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">《ZC總部》核心採購與倉儲管理系統 V3</h1>
+            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">《ZC總部》核心採購與倉儲管理系統 V4</h1>
             <p class="text-teal-700 font-semibold mt-2">負責主管：邦邦 (採購兼倉儲負責中心) 🎀</p>
         </header>
 
@@ -106,7 +106,7 @@
                     <label>今日星期</label>
                     <select name="weekday" id="weekday">
                         <option value="一">星期一</option><option value="二">星期二</option><option value="三">星期三</option>
-                        <option value="四">星期 Thursdays</option><option value="五">星期五</option><option value="六">星期六</option>
+                        <option value="四">星期四</option><option value="五">星期五</option><option value="六">星期六</option>
                         <option value="日">星期日</option>
                     </select>
                 </div>
@@ -116,11 +116,12 @@
             <div class="section-title"><span>👑</span> 上午 10:00 前核心團隊管控職責</div>
             <div class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-3">
                 <label class="font-bold text-gray-700">1. 整體團隊當日上班分工調配計畫：</label>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-white p-3 rounded-lg border border-gray-200">
                     <label class="font-normal"><input type="checkbox" id="m_team_1" checked onchange="updateProgress()"> 出貨人員分工</label>
                     <label class="font-normal"><input type="checkbox" id="m_team_2" checked onchange="updateProgress()"> 點貨人員調配</label>
                     <label class="font-normal"><input type="checkbox" id="m_team_3" checked onchange="updateProgress()"> 門市配貨計畫</label>
                     <label class="font-normal"><input type="checkbox" id="m_team_4" checked onchange="updateProgress()"> 蝦皮兼倉儲調配</label>
+                    <label class="font-normal text-blue-700 font-bold"><input type="checkbox" id="m_team_5" checked onchange="updateProgress()"> 採購助理分工</label>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -165,26 +166,44 @@
             </div>
 
             <div class="section-title"><span>💵</span> 線上雙通路即時庫存水位大盤點 (獲利控管核心)</div>
-            <div class="bg-yellow-50/50 p-5 rounded-2xl border border-yellow-200">
-                <div class="rule-hint" style="background:#fff9c4; border-left-color:#f57f17; color:#5d4037; margin-bottom:12px;">
-                    ℹ️ <b>通路安全水位營運指標：</b><br>
-                    • <b>官網預購可用庫存</b>：落在 <b>600 件內</b> 為正常健康水位。<br>
-                    • <b>蝦皮常態現貨庫存</b>：必須嚴格壓在 <b>1200 件內</b> 為正常安全水位。
+            <div class="bg-yellow-50/50 p-5 rounded-2xl border border-yellow-200 space-y-4">
+                <div class="rule-hint" style="background:#fff9c4; border-left-color:#f57f17; color:#5d4037; margin-bottom:0px;">
+                    ℹ️ <b>通路安全水位營運指標：</b> 官網預購可用庫存控制在 <b>600 件內</b>；蝦皮現貨庫存嚴格壓在 <b>1200 件內</b>。
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label>1. 官網預購制可用庫存水位 (件)</label>
+                        <label>1. 官網預購制可用庫存 (件)</label>
                         <input type="number" id="stock_official" name="stock_official" value="510" min="0" oninput="calculateTotalStock()">
-                        <div id="officialStockAlert" class="text-xs font-bold text-red-600 mt-1" style="display:none;">⚠️ 官網預購庫存爆量！已超出 600 件安全大限，請即刻檢視控制追加！</div>
+                        <div id="officialStockAlert" class="text-xs font-bold text-red-600 mt-1" style="display:none;">⚠️ 官網預購庫存爆量！超標600件！</div>
                     </div>
                     <div>
                         <label>2. 蝦皮即時總庫存水位 (件)</label>
                         <input type="number" id="stock_shopee" name="stock_shopee" value="1150" min="0" oninput="calculateTotalStock()">
-                        <div id="shopeeStockAlert" class="text-xs font-bold text-red-600 mt-1" style="display:none;">⚠️ 蝦皮庫存爆量！已超出 1200 件安全大限，請即刻安排促銷去化！</div>
+                        <div id="shopeeStockAlert" class="text-xs font-bold text-red-600 mt-1" style="display:none;">⚠️ 蝦皮庫存爆量！超標1200件！</div>
                     </div>
                     <div>
-                        <label>3. 線上通路總庫存加總 (件)</label>
-                        <input type="number" id="stock_total_combined" value="1660" readonly class="bg-gray-100 font-bold text-blue-900">
+                        <label>3. 已採購未到貨之門市商品在途件數</label>
+                        <input type="number" name="store_transit_stock" value="2450" placeholder="件">
+                    </div>
+                    <div>
+                        <label>4. 雙通路線上庫存總計 (件)</label>
+                        <input type="number" id="stock_total_combined" name="stock_total_combined" value="1660" readonly class="bg-gray-100 font-bold text-blue-900">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-yellow-200/60">
+                    <div class="bg-white p-3 rounded-xl border border-yellow-200">
+                        <span class="block font-bold text-gray-700 text-xs mb-2">🏛️ 門市商品採購進度追蹤：</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><small class="text-gray-500 block text-xs">本週預計採購門市件數</small><input type="number" name="weekly_plan_store_items" value="1200" class="p-2 text-sm"></div>
+                            <div><small class="text-gray-500 block text-xs">目前實際採購門市件數</small><input type="number" name="weekly_actual_store_items" value="850" class="p-2 text-sm"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-yellow-200">
+                        <span class="block font-bold text-gray-700 text-xs mb-2">📱 線上追加採購進度追蹤：</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><small class="text-gray-500 block text-xs">本週預計採購線上追加件數</small><input type="number" name="weekly_plan_online_items" value="1500" class="p-2 text-sm"></div>
+                            <div><small class="text-gray-500 block text-xs">目前實際採購線上追加件數</small><input type="number" name="weekly_actual_online_items" value="1380" class="p-2 text-sm"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -216,16 +235,38 @@
                     </div>
                 </div>
 
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-amber-500 bg-amber-50/20">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_12" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-amber-600">
+                        <div>
+                            <span class="font-bold text-amber-900 text-sm">✨ (三) 每週二核心：現貨與建檔全面重新對齊查核</span>
+                            <p class="text-xs text-amber-700 mt-0.5">要求：核對當週新品是否有現貨，且各銷售通路建檔資訊、庫存無誤，再次重新對齊！</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_12" placeholder="例：當週52款現貨與官網/蝦皮建檔核對完全一致"></div>
+                </div>
+
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-amber-500 bg-amber-50/20">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_13" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-amber-600">
+                        <div>
+                            <span class="font-bold text-amber-900 text-sm">👑 (四) 每週二核心：管理人員昨日考績覆核追蹤</span>
+                            <p class="text-xs text-amber-700 mt-0.5">管理要求：確實確認並督導總部所有下屬管理人員，是否都已按時回傳上日考績！</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_13" placeholder="例：已確認出貨/點貨/配貨/蝦皮等人員昨日考績全數上繳"></div>
+                </div>
+
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_3" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">🛒 (三) 官網追加、商品等級追加單送單 (每週二、週四核心)</span>
+                            <span class="font-bold text-gray-800 text-sm">🛒 (五) 官網追加、商品等級追加單送單 (每週二、週四核心)</span>
                             <p class="text-xs text-gray-500 mt-0.5">職責：建立採購單 ➔ 蝦皮同步加數量 ➔ 分別送單至 CN/KR/TW ➔ KEY 追加表格</p>
                         </div>
                     </div>
                     <div class="md:w-1/3">
-                        <input type="text" name="data_job_3_orders" value="今日共開立 30 張採購單，總計追加 CN 66款988件/KR 16款685件" placeholder="填寫開立採購單張數、款/件明細">
+                        <input type="text" name="data_job_3_orders" value="今日共開立 30 張採購單，總計追加 CN 66款988件/KR 16款685件" placeholder="填寫明細">
                         <div class="grid grid-cols-2 gap-2 mt-1">
                             <div><small class="text-gray-500 text-xs font-bold block">今日總採金額(元)</small><input type="number" name="data_job_3_amount" value="335013" class="p-2 text-sm"></div>
                             <div><small class="text-gray-500 text-xs font-bold block">其中CN採購額</small><input type="number" name="data_job_3_cn_amount" value="238502" class="p-2 text-sm"></div>
@@ -233,59 +274,63 @@
                     </div>
                 </div>
 
+                <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-blue-600 bg-blue-50/20">
+                    <div class="flex items-start gap-3 md:w-2/3">
+                        <input type="checkbox" id="chk_job_14" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-blue-700">
+                        <div>
+                            <span class="font-bold text-blue-900 text-sm">🌐 (六) 每週五核心：官網全站販售品項安全總巡檢</span>
+                            <p class="text-xs text-blue-700 mt-0.5">防漏大計：全面檢查並測試官網所有上架品項，確保「價格顯示正確」且「所有品項狀態均正常、可以順暢購買」！</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_14" placeholder="例：全站價格排查完畢，商品購物流程一切正常"></div>
+                </div>
+
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_4" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">🔍 (四) 檢視系統負數商品大整理 (每週四重大執行)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">要求：抓出系統負數庫存 ➔ 分析原因 ➔ 追加或後續通知斷貨、換色處理（一週一次大整理）</p>
+                            <span class="font-bold text-gray-800 text-sm">🔍 (七) 檢視系統負數商品大整理 (每週死盯執行)</span>
+                            <p class="text-xs text-gray-500 mt-0.5">要求：抓出系統負數庫存 ➔ 分析原因 ➔ 追加或後續通知斷貨處理</p>
                         </div>
                     </div>
-                    <div class="md:w-1/3">
-                        <input type="text" name="data_job_4_count" placeholder="今日抓出負數庫存共 0 項">
-                        <input type="text" name="data_job_4_result" placeholder="處理結果：錯色/斷貨通知更換" class="mt-1">
-                    </div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_4_count" placeholder="今日抓出負數庫存共 0 項"></div>
                 </div>
 
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_5" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">📉 (五) 新品銷量破百篩查與款式去留討論 (每週四早晨執行)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">流程：下架上週新品 ➔ 查看收音機銷量 ➔ 做破百商品單 ➔ 主管團隊討論款式去留（留下轉C碼/淘汰轉D碼售完不補）</p>
+                            <span class="font-bold text-gray-800 text-sm">📉 (八) 新品銷量破百篩查與款式去留討論 (每週四執行)</span>
                         </div>
                     </div>
-                    <div class="md:w-1/3"><input type="text" name="data_job_5" placeholder="例：評估後留下轉C碼35款，售完不補D碼0款"></div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_5" placeholder="例：留下轉C碼35款，售完不補D碼0款"></div>
                 </div>
 
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_6" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">📱 (六) 蝦皮款式更新 ＆ 收音機檔期代碼配置檢查 (每週四執行)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">標準：檢視並淘汰C碼維持在70-100款（匯出給妤嫻）➔ 檢查D碼庫存上下架 ➔ F碼保留當週新款</p>
+                            <span class="font-bold text-gray-800 text-sm">📱 (九) 蝦皮款式更新 ＆ 收音機檔期代碼配置檢查 (每週四執行)</span>
                         </div>
                     </div>
-                    <div class="md:w-1/3"><input type="text" name="data_job_6" placeholder="例：F碼15款，C碼75款，H碼28款，I碼38款"></div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_6" placeholder="例：F碼15款，C碼75款"></div>
                 </div>
 
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_7" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">💵 (七) 貨款款項安排與水單回傳歸檔 (日常/週五統一安排)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">要求：記錄款項 ➔ 分辨緊急度（不急統一週五安排） ➔ 匯出後水單確實回傳歸檔</p>
+                            <span class="font-bold text-gray-800 text-sm">💵 (十) 貨款款項安排與水單回傳歸檔 (日常/週五統一安排)</span>
                         </div>
                     </div>
-                    <div class="md:w-1/3"><input type="text" name="data_job_7" value="今日共安排2筆貨款，總金額669，水單已全數回傳歸檔" placeholder="填寫今日貨款安排筆數、總額與歸檔狀態"></div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_7" value="今日共安排2筆貨款，總金額669，水單已全數回傳歸檔"></div>
                 </div>
 
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_8" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">🏪 (八) 門市追加建立採購單作業 (每週二核心對接)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">要求：建立數值為0的採購單 ➔ 備註欄註記總數+各分店分配數量 ➔ 送單 ➔ KEY 總表紀錄</p>
+                            <span class="font-bold text-gray-800 text-sm">🏪 (十一) 門市追加建立採購單作業 (每週二核心)</span>
                         </div>
                     </div>
                     <div class="md:w-1/3"><input type="text" name="data_job_8" placeholder="例：今日為門市開立1張採購單，共14款/526件"></div>
@@ -295,39 +340,36 @@
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_9" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">🪡 (九) CN / TW 核心自訂款打版聯繫與紀錄 (不定時)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">要求：與廠商溝通紀錄 ➔ 樣品到店內部對版確認 ➔ 安排下大貨 ➔ 大貨總表更新</p>
+                            <span class="font-bold text-gray-800 text-sm">🪡 (十二) CN / TW 核心自訂款打版聯繫與紀錄 (不定時)</span>
                         </div>
                     </div>
-                    <div class="md:w-1/3"><input type="text" name="data_job_9" value="自訂款內部對版確認完成，下單CN大貨3款/310件" placeholder="填寫今日自訂款打版溝通或下大貨進度"></div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_9" value="自訂款內部對版確認完成，下單CN大貨3款/310件"></div>
                 </div>
 
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_10" checked onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">📦 (十) 物流貨況與長週期未出貨追蹤 (不定時防漏大計)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">防漏天條：1. 固定查詢14天內未出貨訂單。 2. 遇貨物數量不符，需回溯反查（廠商出貨日➔品檢出貨➔慶泰拆櫃單）。</p>
+                            <span class="font-bold text-gray-800 text-sm">📦 (十三) 物流貨況與長週期未出貨追蹤 (不定時防漏大計)</span>
                         </div>
                     </div>
-                    <div class="md:w-1/3"><input type="text" name="data_job_10" value="已清查14天內未出貨單。處理1260415107等4款廠商斷貨" placeholder="填寫今日未出貨清查或異常貨物追蹤細節"></div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_10" value="已清查14天內未出貨單。處理1260415107等4款廠商斷貨"></div>
                 </div>
 
                 <div class="task-row flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-3 md:w-2/3">
                         <input type="checkbox" id="chk_job_11" onchange="updateProgress()" class="mt-1 w-5 h-5 accent-teal-600">
                         <div>
-                            <span class="font-bold text-gray-800 text-sm">👚 (十一) 少量現貨檢查與分店庫存二次分配 (不定時)</span>
-                            <p class="text-xs text-gray-500 mt-0.5">目的：檢查前幾週商品庫存是否因「取消單」釋出轉為現貨 ➔ 查詢後精準將現貨重新配發至各門市架上</p>
+                            <span class="font-bold text-gray-800 text-sm">👚 (十四) 少量現貨檢查與分店庫存二次分配 (不定時)</span>
                         </div>
                     </div>
-                    <div class="md:w-1/3"><input type="text" name="data_job_11" placeholder="例：精查前三週取消單，釋出5款現貨已全數重新分配門市"></div>
+                    <div class="md:w-1/3"><input type="text" name="data_job_11" placeholder="例：清查取消單釋出5款現貨重新分配"></div>
                 </div>
             </div>
 
-            <div class="section-title"><span>助理</span> 採購助理：巧咪今日核心任務追蹤監控</div>
-            <div class="bg-teal-50/50 p-5 rounded-2xl border border-teal-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="section-title"><span>👩‍💻</span> 採購助理：巧咪今日核心任務追蹤監控</div>
+            <div class="bg-teal-50/50 p-5 rounded-2xl border border-teal-200 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label>巧咪今日門市追加/開單送單紀錄</label>
                         <input type="text" name="xiaomi_po_log" value="今日為門市開立 1 張採購單，共 14 款 / 526 件">
@@ -336,5 +378,278 @@
                         <label>巧咪今日大陸追加送單數據 (款/件)</label>
                         <input type="text" name="xiaomi_cn_add" value="門市大陸追加送單 16款/373件">
                     </div>
+                    <div>
+                        <label class="text-blue-700 font-bold">巧咪今日韓國追加送單數據 (款/件) 🌟</label>
+                        <input type="text" name="xiaomi_kr_add" value="門市韓國追加送單 8款/125件" class="border-blue-400">
+                    </div>
                 </div>
-                <div
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label>超過21/28日缺貨追蹤處理明細</label>
+                        <input type="text" name="overdue_28_log" value="目前>21日缺貨共 52 款/435件。今日決定取消斷貨4款9件">
+                    </div>
+                    <div>
+                        <label>巧咪/韓國/台組 未賣已下單未到貨統計</label>
+                        <input type="text" name="undelivered_log" value="CN上身約152款/2492件，韓國上身13款，台組上身7款">
+                    </div>
+                    <div>
+                        <label>巧咪 LINE 當日總訊息處理量</label>
+                        <input type="number" name="xiaomi_line_count" value="485">
+                    </div>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-teal-300">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-teal-900 font-bold">巧咪今日主要「協助事項詳情」 📋</label>
+                            <input type="text" name="xiaomi_assist_detail" value="協助直播建檔資料調取、韓國來客單據系統校正。">
+                        </div>
+                        <div>
+                            <label class="text-teal-900 font-bold">巧咪今日工作表現「效率評定短評」 ⚡</label>
+                            <select name="xiaomi_efficiency_grade" class="border-teal-400 font-bold text-teal-800">
+                                <option value="效率：好">✨ 效率：好 (交辦事項快速且精準完成)</option>
+                                <option value="效率：正常">👍 效率：正常 (進度均按常態規律推進)</option>
+                                <option value="效率：略慢">⚠️ 效率：略慢 (有卡單或訊息延遲回覆狀況)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title"><span>🌙</span> 17:30 後 閉店行政紀律與團隊管理反饋</div>
+            <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-200 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-indigo-900 font-bold">1. 團隊核心成員「日程表回傳」核查點</label>
+                        <select name="team_schedule_return" required>
+                            <option value="倉儲四位人員與巧咪皆已確實回傳日程表">✅ 倉儲四位核心同仁 ＆ 巧咪，今日皆已確實回傳日程表</option>
+                            <option value="有成員未回傳日程表">⚠️ 注意：有同仁未回傳日程表 (需落實管理催收)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-indigo-900 font-bold">2. 當日大盤採購追加安全比率 (系統自動診斷)</label>
+                        <div id="poRatioDisplay" class="alert-box bg-white text-gray-700 text-xs py-3 border border-indigo-200">請填入下方數據自動診斷</div>
+                        <input type="hidden" name="po_safety_ratio_value" id="po_safety_ratio_value">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="display:none">
+                    <div><input type="number" id="calc_sales_num" value="150"></div>
+                    <div><input type="number" id="calc_po_num" value="129"></div>
+                </div>
+
+                <div>
+                    <label class="text-indigo-900 font-bold">3. 每日管理自省：個人打字反映 SOP 優化或不再現場看不到的盲區改善/團隊反饋</label>
+                    <textarea name="boss_blindspot_feedback" rows="3" required placeholder="請主管據實打字反映：今天發現了什麼從數據看不到的盲區？哪些供應鏈環節有卡關？或者團隊有什麼正面/負面的反饋、需要優化什麼 SOP..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-title"><span>💵</span> 日常瑣碎、物流與錢事回報</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label>今日安排/匯出貨款與水單回傳</label>
+                    <input type="text" name="payment_status" value="共匯出2筆，總金額669，水單已回傳">
+                </div>
+                <div>
+                    <label>ZC 核心自訂款打版聯絡與內部對版進度</label>
+                    <input type="text" name="custom_sample_progress" value="5/25-5/29開大貨72款1347件，今日已對版確認">
+                </div>
+            </div>
+            <label>每日廠商異常訊息問題 / 今日品檢對帳處理明細</label>
+            <textarea name="vendor_issues" rows="2">1260415107 斷貨處理 / 25112016 確認做貨 / 22604FA13 確認做貨 / 22602021211 確認下貨 ｜ 麗誠品檢對帳已於6/5完成</textarea>
+
+            <div class="flex flex-col sm:flex-row gap-5 mt-8">
+                <button type="submit" id="submitBtn" class="btn-primary flex-1 text-white font-bold py-5 rounded-2xl shadow-xl">完成並送出總部日報 🚀</button>
+                <button type="button" onclick="generateHqPreview()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-5 rounded-2xl hover:bg-gray-200 transition">僅預覽 LINE 文字報告 📄</button>
+            </div>
+        </form>
+
+        <div id="resultContainer" class="card p-6 md:p-8 hidden">
+            <h2 class="text-2xl font-bold mb-5 flex justify-between items-center text-blue-800">
+                <span>📋 總部採購日報摘要預覽 (複製發送群組)</span>
+                <button onclick="copyHqReport()" class="text-sm bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700">一鍵複製整份日報</button>
+            </h2>
+            <pre id="resultText" class="whitespace-pre-wrap bg-blue-50/40 p-6 rounded-2xl border border-blue-100 text-gray-700 text-sm leading-relaxed font-mono"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('date').valueAsDate = new Date();
+        const dayMap = ['日','一','二','三','四','五','六'];
+        document.getElementById('weekday').value = dayMap[new Date().getDay()];
+
+        function calculateTotalStock() {
+            const official = parseInt(document.getElementById('stock_official').value) || 0;
+            const shopee = parseInt(document.getElementById('stock_shopee').value) || 0;
+            
+            const officialAlert = document.getElementById('officialStockAlert');
+            if (official > 600) { officialAlert.style.display = 'block'; } else { officialAlert.style.display = 'none'; }
+
+            const shopeeAlert = document.getElementById('shopeeStockAlert');
+            if (shopee > 1200) { shopeeAlert.style.display = 'block'; } else { shopeeAlert.style.display = 'none'; }
+
+            document.getElementById('stock_total_combined').value = official + shopee;
+        }
+
+        function checkDelayOrdersAlert() {
+            const d1m = parseInt(document.getElementById('delay_1month_count').value) || 0;
+            const d25 = parseInt(document.getElementById('delay_25days_count').value) || 0;
+            const d21 = parseInt(document.getElementById('delay_21days_count').value) || 0;
+
+            const solutionArea = document.getElementById('delaySolutionArea');
+            const solutionInput = document.getElementById('delay_solution_text');
+
+            if (d1m >= 1 || d25 >= 10 || d21 >= 100) {
+                solutionArea.style.display = 'block';
+                solutionInput.setAttribute('required', 'true');
+            } else {
+                solutionArea.style.display = 'none';
+                solutionInput.removeAttribute('required');
+            }
+        }
+
+        function updateProgress() {
+            const totalTasks = 18; 
+            let checkedCount = 0;
+
+            for(let i=1; i<=5; i++) { if(document.getElementById(`m_team_${i}`).checked) checkedCount++; }
+            for(let i=1; i<=11; i++) { if(document.getElementById(`chk_job_${i}`).checked) checkedCount++; }
+            if(document.getElementById('chk_job_12').checked) checkedCount++;
+            if(document.getElementById('chk_job_13').checked) checkedCount++;
+            if(document.getElementById('chk_job_14').checked) checkedCount++;
+
+            const percent = Math.round((checkedCount / totalTasks) * 100);
+            document.getElementById('globalProgressPercent').innerText = percent + "%";
+            document.getElementById('globalProgressBar').style.width = percent + "%";
+        }
+
+        function runRatioCalc() {
+            const sales = parseFloat(document.getElementById('calc_sales_num').value) || 0;
+            const po = parseFloat(document.getElementById('calc_po_num').value) || 0;
+            const display = document.getElementById('poRatioDisplay');
+            const hiddenInput = document.getElementById('po_safety_ratio_value');
+
+            if (po === 0) {
+                display.innerText = "尚未取得有效追加數據";
+                display.className = "alert-box bg-white text-gray-700 text-xs py-3 border border-indigo-200 text-center";
+                hiddenInput.value = "";
+                return;
+            }
+
+            const ratio = (sales / po).toFixed(2);
+            if (ratio <= 1.1) {
+                display.innerText = `🟢 流速比率: ${ratio} [正常]`;
+                display.className = "alert-box bg-green-50 text-green-700 text-xs py-3 font-bold text-center border border-green-200";
+            } else if (ratio > 1.1 && ratio <= 1.3) {
+                display.innerText = `🟡 流速比率: ${ratio} [警戒追加迫近]`;
+                display.className = "alert-box bg-yellow-50 text-yellow-700 text-xs py-3 font-bold text-center border border-yellow-200";
+            } else {
+                display.innerText = `🔴 流速比率: ${ratio} [危險！追加過慢]`;
+                display.className = "alert-box bg-red-50 text-red-700 text-xs py-3 font-bold text-center border border-red-200";
+            }
+            hiddenInput.value = ratio;
+        }
+
+        const form = document.getElementById('hqForm');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                generateHqPreview();
+            }, 1000);
+        });
+
+        function generateHqPreview() {
+            const data = new FormData(form);
+            
+            let checks = [];
+            for(let i=1; i<=5; i++) { if(document.getElementById(`m_team_${i}`).checked) checks.push(document.getElementById(`m_team_${i}`).parentElement.innerText.trim()); }
+
+            let activeTasksText = "";
+            const taskTitles = [
+                "(一) 新品訂購 ZC 版與大貨開單流程 (含上架前追加核對)",
+                "(二) 每週直播新品前置編碼定價與建檔流程 (含長週期缺貨商品追蹤)"
+            ];
+            activeTasksText += `   ▪️ ${taskTitles[0]} ➔ [${document.getElementById('chk_job_1').checked ? '✔️已落實' : '💤無排程'}] 明細: ${data.get('data_job_1')}\n`;
+            activeTasksText += `   ▪️ ${taskTitles[1]} ➔ [${document.getElementById('chk_job_2').checked ? '✔️已落實' : '💤無排程'}] 明細: ${data.get('data_job_2_num')} | ${data.get('data_job_2_pricing')}\n`;
+            activeTasksText += `   ▪️ 👑 (三) 週二核心：現貨與通路建檔重新對齊 ➔ [${document.getElementById('chk_job_12').checked ? '✔️已落實' : '💤無排程'}] 明細: ${data.get('data_job_12') || '無'}\n`;
+            activeTasksText += `   ▪️ 👑 (四) 週二核心：管理人員昨日考績覆核 ➔ [${document.getElementById('chk_job_13').checked ? '✔️已落實' : '💤無排程'}] 明細: ${data.get('data_job_13') || '無'}\n`;
+            activeTasksText += `   ▪️ (五) 官網追加與送單 ➔ [${document.getElementById('chk_job_3').checked ? '✔️已落實' : '💤無排程'}] 金額: $${data.get('data_job_3_amount')} 元\n`;
+            activeTasksText += `   ▪️ 🌐 (六) 週五核心：官網全站販售品項安全總巡檢 ➔ [${document.getElementById('chk_job_14').checked ? '✔️已落實' : '💤無排程'}] 明細: ${data.get('data_job_14') || '無'}\n`;
+            
+            const listRemaining = [
+                "負數商品大整理", "新品下架去留分析", "蝦皮與收音機代碼更新", "貨款款項安排水單", "門市追加建立採購單", "自訂款打版聯繫", "14天未出貨物流追蹤", "少量現貨二次分配"
+            ];
+            for(let i=4; i<=11; i++) {
+                const isChk = document.getElementById(`chk_job_${i}`).checked;
+                activeTasksText += `   ▪️ (${i+3}) ${listRemaining[i-4]} ➔ [${isChk ? '✔️已落實' : '💤無排程'}]\n`;
+            }
+
+            let report = `📦 【Zbcsmade 總部採購暨倉儲主管日報 V4】 📦\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `📅 日期：${data.get('date')} (星期${data.get('weekday')})\n`;
+            report += `👤 負責主管：邦邦  |  👑 成本中心執行率：${document.getElementById('globalProgressPercent').innerText}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 👑 上午10點前團隊管控與SOP提升 》\n`;
+            report += `・人員分工調配掌控：${checks.join(', ')}\n`;
+            report += `・昨日成員日報覆核：${data.get('yesterday_review')}\n`;
+            report += `・每日晨會與SOP修訂：${data.get('warehouse_meeting') || '無重大變動'}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 🚨 核心防漏：長週期延遲訂單核查 》\n`;
+            report += `・等候超過1個月/25天/21天：${data.get('delay_1month_count')} / ${data.get('delay_25days_count')} / ${data.get('delay_21days_count')} 筆\n`;
+            if(document.getElementById('delaySolutionArea').style.display === 'block') {
+                report += `🔥 [延遲單量觸發紅線預計解決辦法]：\n   ➔ ${data.get('delay_solution_text')}\n`;
+            }
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 💵 線上/在途大盤庫存水位大盤點 》\n`;
+            report += `・官網預購庫存：${data.get('stock_official')} 件 (${parseInt(data.get('stock_official')) > 600 ? '⚠️超標' : '✅正常'})\n`;
+            report += `・蝦皮常態庫存：${data.get('stock_shopee')} 件 (${parseInt(data.get('stock_shopee')) > 1200 ? '⚠️超標' : '✅正常'})\n`;
+            report += `・門市商品採購在途庫存：${data.get('store_transit_stock')} 件\n`;
+            report += `・雙通路線上加總庫存：${data.get('stock_total_combined')} 件\n`;
+            report += `・門市採購追蹤 ➔ 預計: ${data.get('weekly_plan_store_items')} 件 | 實際: ${data.get('weekly_actual_store_items')} 件\n`;
+            report += `・線上追加追蹤 ➔ 預計: ${data.get('weekly_plan_online_items')} 件 | 實際: ${data.get('weekly_actual_online_items')} 件\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 🚀 邦邦核心與天條任務執行進度 》\n`;
+            report += activeTasksText;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 👩‍💻 採購助理：巧咪今日核心任務追蹤監控 》\n`;
+            report += `・門市追加開單：${data.get('xiaomi_po_log')}\n`;
+            report += `・巧咪今日大陸追加：${data.get('xiaomi_cn_add')}\n`;
+            report += `・巧咪今日韓國追加：${data.get('xiaomi_kr_add')}\n`;
+            report += `・超過21/28日缺貨對接：${data.get('overdue_28_log')}\n`;
+            report += `・未賣已下單未到貨統計：${data.get('undelivered_log')}\n`;
+            report += `・LINE 當日總訊息處理量：${data.get('xiaomi_line_count')} 則\n`;
+            report += `・今日協助事項詳情：${data.get('xiaomi_assist_detail')}\n`;
+            report += `・✨ 巧咪今日效率評定：【${data.get('xiaomi_efficiency_grade')}】\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 🌙 17:30 後閉店紀律與現場不見盲區改善反饋 》\n`;
+            report += `・團隊核心成員日程表回傳：${data.get('team_schedule_return')}\n`;
+            report += `・追加流速比率診斷：${document.getElementById('poRatioDisplay').innerText}\n`;
+            report += `・📝 主管打字盲區反饋與SOP改善內容：\n   ➔ ${data.get('boss_blindspot_feedback')}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `《 🔧 供應鏈日常與財務錢事 》\n`;
+            report += `・貨款安排狀態: ${data.get('payment_status')} | 自訂款進度: ${data.get('custom_sample_progress')}\n`;
+            report += `・廠商異常/品檢明細: ${data.get('vendor_issues')}\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `💡 週末請邦邦對照本報歷史數據進行週報產出。`;
+
+            document.getElementById('resultText').innerText = report;
+            document.getElementById('resultContainer').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function copyHqReport() {
+            const txt = document.getElementById('resultText');
+            const el = document.createElement('textarea');
+            el.value = txt.innerText; document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+            alert('邦邦總部採購日報 V4 終極版複製成功！');
+        }
+
+        calculateTotalStock();
+        checkDelayOrdersAlert();
+        updateProgress();
+        runRatioCalc();
+    </script>
+</body>
+</html>
